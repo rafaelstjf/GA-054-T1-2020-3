@@ -135,13 +135,12 @@ class Graph:
                 coeff = (2* summation)/(self.nodes_degree[index] * (self.nodes_degree[index] - 1))
             else:
                 coeff = (summation)/(self.nodes_degree[index] * (self.nodes_degree[index] - 1))
-        return coeff
+        self.cluster_coeff[index] = coeff
 
     def calc_clustering_coeff(self):
-        executor = ThreadPoolExecutor(5)
+        executor = ThreadPoolExecutor(4)
         for i in range(0, self.size):
             res = executor.submit(self.__calc_clustering_coeff_aux, (i))
-            self.cluster_coeff[i] = res.result()
         executor.shutdown(wait=True)
         return self.cluster_coeff
     
