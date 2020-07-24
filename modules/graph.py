@@ -96,6 +96,7 @@ class Graph:
         values = list(proportion.values())
         for i in range(0, len(values)):
             values[i] = values[i]/self.size
+        plt.title("Degree distribution")
         plt.xscale('log')
         plt.yscale('log')
         plt.scatter(degrees, values, marker='.', c='r')
