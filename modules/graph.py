@@ -95,12 +95,13 @@ class Graph:
         degrees = list(proportion.keys())
         values = list(proportion.values())
         for i in range(0, len(values)):
-            values[i] = (values[i]/self.size)
-        plt.xlim(min(degrees),max(degrees))
-        plt.ylim(min(values),max(values))
-        plt.bar(degrees, values, width=1)
-        plt.ylabel('Values')
+            values[i] = values[i]/self.size
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.scatter(degrees, values, marker='.', c='r')
+        plt.ylabel('P')
         plt.xlabel('Degree')
+        #plt.grid(True)
         plt.show()
 
     def count_triangles_number(self):
