@@ -7,8 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 class Graph:
     def __init__(self, size=0, is_oriented=False, filename=None):
         self.is_oriented = False
-        self.nodes_degree = []
-        self.cluster_coeff = []
         self.g = None
         if(filename != None):
             # first line: 1 if oriented 0 otherwise
@@ -49,13 +47,17 @@ class Graph:
 
     def get_node_degree(self, node_index):
         if(node_index >= 0 and node_index < self.size):
-            return self.nodes_degree[node_index]
+            return self.g.degree[node_index]
         else:
             return -1
 
 
     def print_graph(self):
-        print(self.g)
+        for i in self.g.nodes:
+            print(str(i) + "-> ", end= '')
+            for j in self.g.edges(i):
+                print (str(j[1]), end = '')
+            print('')
 
     def plot_degree_dist(self):
         proportion = dict()
