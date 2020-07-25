@@ -56,7 +56,7 @@ class Graph:
         for i in self.g.nodes:
             print(str(i) + "-> ", end= '')
             for j in self.g.edges(i):
-                print (str(j[1]), end = '')
+                print (str(j[1]) + ', ', end = '')
             print('')
 
     def plot_degree_dist(self):
