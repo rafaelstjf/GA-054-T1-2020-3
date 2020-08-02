@@ -76,7 +76,7 @@ class Graph:
         plt.title("Degree distribution")
         plt.xscale('log')
         plt.yscale('log')
-        plt.scatter(degrees, values, marker='.', c='r')
+        plt.scatter(degrees, values, marker='.', c='#e36387')
         plt.ylabel('P')
         plt.xlabel('Degree')
         #plt.grid(True)
@@ -90,3 +90,34 @@ class Graph:
     
     def calc_average_clustering_coeff(self):
         return nx.average_clustering(self.g)
+    def calc_max_independent_set(self):
+        if self.is_oriented == True:
+            return nx.maximal_independent_set(self.g)
+        else:
+            return None
+    def calc_reciprocity(self):
+        return nx.reciprocity(self.g)
+    def calc_connected_components(self):
+        if self.is_oriented == True:
+            return nx.strongly_connected_components(self.g)
+        else:
+            return nx.connected_components(self.g)
+    def check_if_weakly_connected(self):
+        if self.is_oriented == True:
+            return nx.is_weakly_connected(self.g)
+        else:
+            return False
+    def calc_degree_centrality(self):
+        return nx.degree_centrality(self.g)
+    def calc_in_degree_centrality(self):
+        if self.is_oriented == True:
+            return nx.in_degree_centrality(self.g)
+        else:
+            return None
+    def calc_out_degree_centrality(self):
+        if self.is_oriented == True:
+            return nx.out_degree_centrality(self.g)
+        else:
+            return None
+    def calc_eigenvector_centrality(self):
+        return nx.eigenvector_centrality(self.g, max_iter=1000)
