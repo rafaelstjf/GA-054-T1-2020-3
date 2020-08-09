@@ -50,8 +50,17 @@ class Graph:
             return self.g.degree[node_index]
         else:
             return -1
+    def get_node_indegree(self, node_index):
+        if(node_index >= 0 and node_index < self.size and self.is_oriented==True):
+            return self.g.in_degree[node_index]
+        else:
+            return -1
 
-
+    def get_node_outdegree(self, node_index):
+        if(node_index >= 0 and node_index < self.size and self.is_oriented==True):
+            return self.g.out_degree[node_index]
+        else:
+            return -1
     def print_graph(self):
         for i in self.g.nodes:
             print(str(i) + "-> ", end= '')
@@ -99,6 +108,7 @@ class Graph:
         return nx.reciprocity(self.g)
     def calc_connected_components(self):
         if self.is_oriented == True:
+            print('Number of connected components: ' + str(nx.number_strongly_connected_components(self.g)))
             return nx.strongly_connected_components(self.g)
         else:
             return nx.connected_components(self.g)
@@ -107,6 +117,12 @@ class Graph:
             return nx.is_weakly_connected(self.g)
         else:
             return False
+    def calc_weakly_connected_components(self):
+        if(self.is_oriented == True):
+            print('Number of weakly connected components: ' + str(nx.number_weakly_connected_components(self.g)))
+            return nx.weakly_connected_components(self.g)
+        else:
+            return None
     def calc_degree_centrality(self):
         return nx.degree_centrality(self.g)
     def calc_in_degree_centrality(self):
@@ -119,5 +135,30 @@ class Graph:
             return nx.out_degree_centrality(self.g)
         else:
             return None
+
     def calc_eigenvector_centrality(self):
         return nx.eigenvector_centrality(self.g, max_iter=1000)
+
+    def calc_betweeness_centrality(self):
+        return nx.betweenness_centrality(self.g, normalized=True)
+
+    def print_subgraph_from_vertex(self, node_index):
+        vertices = []
+        colors = []
+        node_sizes = []
+        vertices.append(node_index)
+        for e in self.g.edges(node_index):
+            vertices.append(e[1])
+        for e in self.g.in_edges(node_index):
+            vertices.append(e[0])
+        sub_g = self.g.subgraph(vertices)
+        for i in sub_g.nodes():
+            if(i == node_index):
+                node_sizes.append(10)
+                colors.append('#00bcd4')
+            else:
+                node_sizes.append(0.5)
+                colors.append('#b52b65')
+        nx.draw(sub_g, node_size=node_sizes, node_color=colors, width=0.1, edge_color='#dfd3c3', arrows=True, arrowsize=2)
+        plt.show()
+
