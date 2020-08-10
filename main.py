@@ -8,23 +8,24 @@ import networkx.algorithms.community as nxc
 is_oriented=True
 filename = 'musae_git_edges.csv'
 attrib_filename = 'musae_git_target.csv'
+num_nodes = 37699
 def create_graph():
-
     delimiter = ','
     g = None
     if(is_oriented == True):
         g = nx.DiGraph()
     else:
         g = nx.Graph()
-    data = np.genfromtxt(filename, delimiter=delimiter, skip_header =1)
+    data = np.genfromtxt(filename, delimiter=delimiter, skip_header =1, dtype='int')
     attribs = np.genfromtxt(attrib_filename, delimiter=delimiter, skip_header =1, dtype='str')
-    for i in range(0, data.shape[0]):
+    for i in range(0, num_nodes):
         g.add_node(i)
     for i in range(0, data.shape[0]):
-        g.add_edge((data[i,0], data[i,1]), 0)
+        g.add_edge(data[i,0], data[i,1])
         if(is_oriented == False):
-            g.add_edge((data[i,1], data[i,0]), 0)
-    ml_target = attribs[:,2].astype('int')
+            g.add_edge(data[i,1], data[i,0])
+    #ml_target = attribs[:,2].astype('int')
+    ml_target = attribs[:,2]
     ids = attribs[:,0].astype('int')
     types1 = {}
     types2 = {}
@@ -33,7 +34,7 @@ def create_graph():
         types1[ids[i]] = name[i]
         types2[ids[i]] = ml_target[i]
     nx.set_node_attributes(g, types1, 'name')
-    nx.set_node_attributes(g, types2, 'type of developer')
+    nx.set_node_attributes(g, types2, 'developer')
     return g
 
 def print_graph(g):
@@ -91,8 +92,11 @@ def count_triangles_number(g):
 def calc_clustering_coeff(g):
     return nx.clustering(g)
 
+def calc_global_clustering_coeff(g):
+    return nx.transitivity(g)
+
 def calc_average_clustering_coeff(g):
-    return nx.average_clustering(g)
+    return nx.average_clustering(g, count_zeros=True)
 def calc_max_independent_set(g):
     if is_oriented == True:
         return nx.maximal_independent_set(g)
@@ -167,7 +171,7 @@ def main():
     else:
         print("nao eh fracamente conectado")
     '''
-    #centrality = g.calc_degree_centrality()
+    #centrality = calc_degree_centrality(g)
     #print(max(centrality.items(), key=operator.itemgetter(1)))
     #eigen = g.calc_eigenvector_centrality()
     #print(max(eigen.items(), key=operator.itemgetter(1)))
@@ -180,10 +184,19 @@ def main():
     #g.print_subgraph_from_vertex(31890)
     #calc_plot_strongly_connected_components(g)
     #calc_plot_weakly_connected_components(g)
-    #print(nx.attribute_assortativity_coefficient(g,'type of developer'))
-    #print(nx.attribute_mixing_matrix(g,'type of developer'))
+    #print(nx.attribute_assortativity_coefficient(g,'developer'))
+    #print(nx.degree_assortativity_coefficient(g))
+    #print(nx.attribute_mixing_matrix(g,'developer'))
     #print(nx.k_nearest_neighbors(g))
-    comp = nxc.girvan_newman(g)
-    nx.draw_networkx(g, arrows=True, with_labels =False, width = 0.5 )
-    plt.savefig("graph.pdf")
+    #comp = nxc.girvan_newman(g)
+    #tuple(sorted(c) for c in next(comp))
+    #nx.draw_networkx(g, arrows=True, with_labels =False, width = 0.5 )
+    #plt.savefig("graph.pdf")
+    #print("Coeff de clusterizacao medio: " + str(calc_average_clustering_coeff(g)))
+    #print("Coeff de clusterizacao global: " + str(calc_global_clustering_coeff(g)))
+    #print_graph(g)
+    #coef = nx.clustering(g, 31890)
+    #print("Coeff de clusterizacao vertice " + str(31890) +": "  + str(coef))
+    #coef = nx.clustering(g, 2347)
+    #print("Coeff de clusterizacao vertice " + str(2347) +": "  + str(coef))
 main()
