@@ -140,7 +140,27 @@ def calc_eigenvector_centrality(g):
 def calc_betweeness_centrality(g):
     return nx.betweenness_centrality(g, normalized=True)
 
-def print_subgraph_from_vertex(g, node_index):
+def subgraph_from_vertex(g, node_index):
+    vertices = []
+    vertices.append(node_index)
+    for e in g.edges(node_index):
+        vertices.append(e[1])
+    for e in g.in_edges(node_index):
+        vertices.append(e[0])
+    sub_g = g.subgraph(vertices)
+    return sub_g
+
+def plot_graph_by_dev(g):
+    colors=[]
+    elements = nx.get_node_attributes(g, 'developer')
+    for i in elements.items():
+        if(i[1] == '0'):
+            colors.append('#f09ae9')
+        else:
+            colors.append('#ffd36b')
+    nx.draw(g, node_size=10, node_color=colors, width=0.1, edge_color='#dfd3c3', arrows=True, arrowsize=2)
+    plt.show()
+def plot_subgraph_from_vertex(g, node_index):
     vertices = []
     colors = []
     node_sizes = []
@@ -199,4 +219,7 @@ def main():
     #print("Coeff de clusterizacao vertice " + str(31890) +": "  + str(coef))
     #coef = nx.clustering(g, 2347)
     #print("Coeff de clusterizacao vertice " + str(2347) +": "  + str(coef))
+    #sub_g = subgraph_from_vertex(g, 31890)
+    #plot_graph_by_dev(sub_g)
+    #print(nx.attribute_assortativity_coefficient(sub_g, 'developer'))
 main()
