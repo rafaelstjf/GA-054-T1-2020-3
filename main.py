@@ -84,45 +84,26 @@ def calc_plot_strongly_connected_components(g):
 
 def calc_plot_weakly_connected_components(g):
     sizes = [len(c) for c in sorted(g.calc_weakly_connected_components(), key=len, reverse=True)]
-    print(sizes)
+    dat = {}
+    for i in range(0, len(sizes)):
+        if i not in dat:
+            dat[i] = sizes[i]
+    
+    plt.scatter(dat.keys(), dat.values(), color='#e36387')
+    plt.show()
 
-def count_triangles_number(g):
-    return nx.triangles(g)
-
-def calc_clustering_coeff(g):
-    return nx.clustering(g)
-
-def calc_global_clustering_coeff(g):
-    return nx.transitivity(g)
-
-def calc_average_clustering_coeff(g):
-    return nx.average_clustering(g, count_zeros=True)
-def calc_max_independent_set(g):
-    if is_oriented == True:
-        return nx.maximal_independent_set(g)
-    else:
-        return None
-def calc_reciprocity(g):
-    return nx.reciprocity(g)
 def calc_connected_components(g):
     if is_oriented == True:
         print('Number of connected components: ' + str(nx.number_strongly_connected_components(g)))
         return nx.strongly_connected_components(g)
     else:
         return nx.connected_components(g)
-def check_if_weakly_connected(g):
-    if is_oriented == True:
-        return nx.is_weakly_connected(g)
-    else:
-        return False
 def calc_weakly_connected_components(g):
     if(is_oriented == True):
         print('Number of weakly connected components: ' + str(nx.number_weakly_connected_components(g)))
         return nx.weakly_connected_components(g)
     else:
         return None
-def calc_degree_centrality(g):
-    return nx.degree_centrality(g)
 def calc_in_degree_centrality(g):
     if is_oriented == True:
         return nx.in_degree_centrality(g)
@@ -134,13 +115,8 @@ def calc_out_degree_centrality(g):
     else:
         return None
 
-def calc_eigenvector_centrality(g):
-    return nx.eigenvector_centrality(g, max_iter=1000)
 
-def calc_betweeness_centrality(g):
-    return nx.betweenness_centrality(g, normalized=True)
-
-def print_subgraph_from_vertex(g, node_index):
+def plot_subgraph_from_vertex(g, node_index):
     vertices = []
     colors = []
     node_sizes = []
@@ -162,41 +138,89 @@ def print_subgraph_from_vertex(g, node_index):
 
 def main():
     g = create_graph()
+    run = True
+    while(run == True):
+        print('Options\n',
+        '\t01 - Calculate the vertex with maximum eigen vector centrality\n',
+        '\t02 - Calculate the vertex with maximum degree centrality\n',
+        '\t03 - Calculate the vertex with maximum betweeness centrality\n',
+        '\t04 - Calculate the degree of a vertex\n',
+        '\t05 - Check if the graph is weakly connected\n',
+        '\t06 - Calculate the indegree of a vertex\n',
+        '\t07 - Plot the degree distribution\n',
+        '\t08 - Plot the subgraph of a vertex and it\'s adjacents\n',
+        '\t09 - Calculate the attribute assortativity coefficient\n',
+        '\t10 - Calculate the attribute mixing matrix\n',
+        '\t11 - Calculate the average clustering coefficient\n',
+        '\t12 - Calculate the global clustering coefficient\n',
+        '\t13 - Calculate the local clustering coefficient of a vertex\n',
+        '\t14 - Calculate the reciprocity of a vertex\n',
+        '\t15 - Calculate the number of triangles\n',
+        '\t16 - Calculate the maximal independent set\n',
+        '\t17 - Calculate reciprocity\n'
+        '\t18 - Exit\n'
+        )
+        op = int(input('Type the option you want: '))
+        if(op==1):
+            eigen = nx.eigenvector_centrality(g, max_iter=1000)
+            print(max(eigen.items(), key=operator.itemgetter(1)))
+        elif(op==2):
+            centrality = nx.degree_centrality(g)
+            print(max(centrality.items(), key=operator.itemgetter(1)))
+        elif(op==3):
+            betweeness = nx.betweenness_centrality(g, normalized=True)
+            print(max(betweeness.items(), key=operator.itemgetter(1)))
+        elif(op==4):
+            vertex_id = int(input('Vertex id: '))
+            print(vertex_id, ": ", g.get_node_degree(vertex_id))
+        elif(op==5):
+            if( nx.is_weakly_connected(g) == True):
+                print("It's weakly connected")
+            else:
+                print("It isn't weakly connected")
+        elif(op==6):
+            vertex_id = int(input('Vertex id: '))
+            print(vertex_id, ": ", g.get_node_in_degree(vertex_id))
+        elif(op==7):
+            g.plot_degree_dist()
+        elif(op==8):
+            vertex_id = int(input('Vertex id: '))
+            g.plot_subgraph_from_vertex(vertex_id)
+        elif(op==9):
+            print(nx.attribute_assortativity_coefficient(g,'developer'))
+        elif(op==10):
+            print(nx.attribute_mixing_matrix(g,'developer'))
+        elif(op==11):
+            print("Average clustering coefficient: " + str(nx.average_clustering(g, count_zeros=True)))
+        elif(op==12):
+            print("Global clustering coefficient: " + str(nx.transitivity(g)))
+        elif(op==13):
+            vertex_id = int(input('Vertex id: '))
+            coef = nx.clustering(g, coef)
+            print("Local clustering coefficient of vertex ",vertex_id, ": ",coef)
+        elif(op==14):
+            vertex_id = int(input('Vertex id: '))
+            print("Reciprocity of the vertex ", vertex_id, ": ",nx.reciprocity(g, vertex_id))
+        elif(op==15):
+            print('Number of triangles: ',nx.triangles(g))
+        elif(op==16):
+            print('Maximal independent set:')
+            print(nx.maximal_independent_set(g))
+        elif(op==17):
+            print("Reciprocity: ", nx.reciprocity(g))
+        elif(op==18):
+            run = False
 
-    #g.plot_degree_dist()
-    #
-    '''
-    if(g.check_if_weakly_connected() == True):
-        print("fracamente conectado")
-    else:
-        print("nao eh fracamente conectado")
-    '''
-    #centrality = calc_degree_centrality(g)
-    #print(max(centrality.items(), key=operator.itemgetter(1)))
-    #eigen = g.calc_eigenvector_centrality()
-    #print(max(eigen.items(), key=operator.itemgetter(1)))
-    #betweeness = g.calc_betweeness_centrality()
-    #print(max(betweeness.items(), key=operator.itemgetter(1)))
-    #print("2347: " + str(g.get_node_degree(2347)))
-    #print("31890: " + str(g.get_node_degree(31890)))
-    #print("31890: " + str(g.get_node_indegree(31890)))
-    #g.print_subgraph_from_vertex(31890)
-    #g.print_subgraph_from_vertex(31890)
     #calc_plot_strongly_connected_components(g)
     #calc_plot_weakly_connected_components(g)
-    #print(nx.attribute_assortativity_coefficient(g,'developer'))
-    #print(nx.degree_assortativity_coefficient(g))
-    #print(nx.attribute_mixing_matrix(g,'developer'))
     #print(nx.k_nearest_neighbors(g))
-    #comp = nxc.girvan_newman(g)
-    #tuple(sorted(c) for c in next(comp))
+    '''
+    comp = nxc.girvan_newman(g)
+    comp_list = list(comp)
+    for i in comp_list:
+        print(i)
+    '''
     #nx.draw_networkx(g, arrows=True, with_labels =False, width = 0.5 )
     #plt.savefig("graph.pdf")
-    #print("Coeff de clusterizacao medio: " + str(calc_average_clustering_coeff(g)))
-    #print("Coeff de clusterizacao global: " + str(calc_global_clustering_coeff(g)))
-    #print_graph(g)
-    #coef = nx.clustering(g, 31890)
-    #print("Coeff de clusterizacao vertice " + str(31890) +": "  + str(coef))
-    #coef = nx.clustering(g, 2347)
-    #print("Coeff de clusterizacao vertice " + str(2347) +": "  + str(coef))
+    #
 main()
