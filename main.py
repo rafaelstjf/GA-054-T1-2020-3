@@ -172,7 +172,7 @@ def main():
             print(max(betweeness.items(), key=operator.itemgetter(1)))
         elif(op==4):
             vertex_id = int(input('Vertex id: '))
-            print(vertex_id, ": ", g.get_node_degree(vertex_id))
+            print(vertex_id, ": ", g.in_degree(vertex_id))
         elif(op==5):
             if( nx.is_weakly_connected(g) == True):
                 print("It's weakly connected")
@@ -180,12 +180,12 @@ def main():
                 print("It isn't weakly connected")
         elif(op==6):
             vertex_id = int(input('Vertex id: '))
-            print(vertex_id, ": ", g.get_node_in_degree(vertex_id))
+            print(vertex_id, ": ", g.degree(vertex_id))
         elif(op==7):
-            g.plot_degree_dist()
+            plot_degree_dist(g)
         elif(op==8):
             vertex_id = int(input('Vertex id: '))
-            g.plot_subgraph_from_vertex(vertex_id)
+            plot_subgraph_from_vertex(g,vertex_id)
         elif(op==9):
             print(nx.attribute_assortativity_coefficient(g,'developer'))
         elif(op==10):
