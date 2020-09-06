@@ -45,52 +45,147 @@ def print_graph(g):
         print('')
 
 def plot_degree_dist(g):
-    size = g.nodes
+    size_ = len(g.nodes)
+    proportion_in = dict()
+    proportion_out = dict()
     proportion = dict()
-    for i in range(0, size):
+    #get in degrees
+    for i in range(0, size_):
+        if g.in_degree(i) not in proportion_in:
+            ind_in = g.in_degree(i)
+            proportion_in[ind_in] = 0.0
+        if g.out_degree(i) not in proportion_out:
+            ind = g.out_degree(i)
+            proportion_out[ind] = 0.0
         if g.degree[i] not in proportion:
-            ind = g.degree[i]
-            proportion[ind] = 0.0
-    for i in range(0, size):
-        ind = g.degree[i]
-        proportion[ind] = proportion[ind] + 1  
+            proportion[g.degree[i]] = 0.0
+    #get out degrees
+    for i in range(0, size_):
+        ind_in = g.in_degree(i)
+        ind_out = g.out_degree(i)
+        proportion_in[ind_in] += 1
+        proportion_out[ind_out] += 1
+        proportion[g.degree[i]] += 1
     degrees = list(proportion.keys())
     values = list(proportion.values())
     for i in range(0, len(values)):
-        values[i] = values[i]/size
+        values[i] = values[i]/size_
+    plt.clf()
+    plt.ylabel('P')
+    plt.xlabel('Degree')
     plt.title("Degree distribution")
     plt.xscale('log')
     plt.yscale('log')
     plt.scatter(degrees, values, marker='.', c='#e36387')
+    plt.show()
+    #indegree
+    in_degrees = list(proportion_in.keys())
+    in_values = list(proportion_in.values())
+    for i in range(0, len(in_values)):
+        in_values[i] = in_values[i]/size_
+    plt.clf()
     plt.ylabel('P')
     plt.xlabel('Degree')
-    #plt.grid(True)
+    plt.title("In degree distribution")
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim(0,size_)
+    plt.scatter(in_degrees, in_values, marker='.', c='#e36387')
     plt.show()
-
+    #outdegree
+    out_degrees = list(proportion_out.keys())
+    out_values = list(proportion_out.values())
+    for i in range(0, len(out_values)):
+        out_values[i] = out_values[i]/size_
+    plt.clf()
+    plt.title("Out degree distribution")
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim(0,size_)
+    plt.ylabel('P')
+    plt.xlabel('Degree')
+    plt.scatter(out_degrees, out_values, marker='.', c='#e36387')
+    plt.show()
+def plot_degree_dist_binned(g):
+    size_ = len(g.nodes)
+    proportion_in = dict()
+    for i in range(0, size_):
+        if g.in_degree(i) not in proportion_in:
+            ind_in = g.in_degree(i)
+            proportion_in[ind_in] = 0.0
+    biggest_degree = max(proportion_in.keys())
+    num_bins_in = math.ceil(math.log2(biggest_degree) + 1)
+    print(num_bins_in)
+    keys = list(proportion_in.keys())
+    it = keys[1]
+    it_ind = 1
+    values = [proportion_in[0]/size_]
+    degrees  = [0]
+    for i in range(1, num_bins_in+1):
+        bin_size = 0
+        num_nodes = 0
+        av = 0
+        while(it >= (math.pow(2, i-1)) and it <= (math.pow(2, i) - 1) and it < len(proportion_in)):
+            num_nodes+=it
+            bin_size+=1
+            av+=it
+            it_ind+=1
+            it=keys[it_ind]
+        if(bin_size>0):
+            av = av/bin_size
+            values.append(num_nodes/bin_size)
+            degrees.append(av)
+    plt.clf()
+    plt.title("In degree distribution")
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim(1,size_)
+    plt.ylabel('P')
+    plt.xlabel('Degree')
+    plt.scatter(degrees, values, marker='.', c='#e36387')
+    plt.show()
 def plot_bar_char(x, y):
     plt.bar(x, y, width=1, color='#e36387')
     plt.show()
-
+def plot_graph_by_dev(g):
+    colors=[]
+    elements = nx.get_node_attributes(g, 'developer')
+    for i in elements.items():
+        if(i[1] == '0'): #web
+            colors.append('#f09ae9')
+        else:
+            colors.append('#ffd36b') #machine learning
+    nx.draw(g, node_size_=10, node_color=colors, width=0.1, edge_color='#dfd3c3', arrows=True, arrowsize_=2)
+    plt.clf()
+    plt.show()
 def calc_plot_strongly_connected_components(g):
-    sizes = [len(c) for c in sorted(g.calc_connected_components(), key=len, reverse=True)]
+    components = nx.number_strongly_connected_components(g)
+    print('Size of the strongly connected components: ',components)
+    '''
+    size_s = [len(c) for c in sorted(g.calc_connected_components(), key=len, reverse=True)]
     dat = {}
-    for i in range(0, len(sizes)):
+    for i in range(0, len(size_s)):
         if i not in dat:
-            dat[i] = sizes[i]
+            dat[i] = size_s[i]
     
     plt.scatter(dat.keys(), dat.values(), color='#e36387')
     plt.show()
+    '''
 
 
 def calc_plot_weakly_connected_components(g):
-    sizes = [len(c) for c in sorted(g.calc_weakly_connected_components(), key=len, reverse=True)]
+    components = nx.number_weakly_connected_components(g)
+    print('Size of the weakly connected components: ',components)
+    '''
+    size_s = [len(c) for c in sorted(g.calc_weakly_connected_components(), key=len, reverse=True)]
     dat = {}
-    for i in range(0, len(sizes)):
+    for i in range(0, len(size_s)):
         if i not in dat:
-            dat[i] = sizes[i]
+            dat[i] = size_s[i]
     
     plt.scatter(dat.keys(), dat.values(), color='#e36387')
     plt.show()
+    '''
 
 def calc_connected_components(g):
     if is_oriented == True:
@@ -119,7 +214,7 @@ def calc_out_degree_centrality(g):
 def plot_subgraph_from_vertex(g, node_index):
     vertices = []
     colors = []
-    node_sizes = []
+    node_size_s = []
     vertices.append(node_index)
     for e in g.edges(node_index):
         vertices.append(e[1])
@@ -128,12 +223,12 @@ def plot_subgraph_from_vertex(g, node_index):
     sub_g = g.subgraph(vertices)
     for i in sub_g.nodes():
         if(i == node_index):
-            node_sizes.append(10)
+            node_size_s.append(10)
             colors.append('#00bcd4')
         else:
-            node_sizes.append(0.5)
+            node_size_s.append(0.5)
             colors.append('#b52b65')
-    nx.draw(sub_g, node_size=node_sizes, node_color=colors, width=0.1, edge_color='#dfd3c3', arrows=True, arrowsize=2)
+    nx.draw(sub_g, node_size_=node_size_s, node_color=colors, width=0.1, edge_color='#dfd3c3', arrows=True, arrowsize_=2)
     plt.show()
 
 def main():
@@ -182,7 +277,8 @@ def main():
             vertex_id = int(input('Vertex id: '))
             print(vertex_id, ": ", g.degree(vertex_id))
         elif(op==7):
-            plot_degree_dist(g)
+            #plot_degree_dist(g)
+            plot_degree_dist_binned(g)
         elif(op==8):
             vertex_id = int(input('Vertex id: '))
             plot_subgraph_from_vertex(g,vertex_id)
@@ -211,8 +307,8 @@ def main():
         elif(op==18):
             run = False
 
-    #calc_plot_strongly_connected_components(g)
-    #calc_plot_weakly_connected_components(g)
+    calc_plot_strongly_connected_components(g)
+    calc_plot_weakly_connected_components(g)
     #print(nx.k_nearest_neighbors(g))
     '''
     comp = nxc.girvan_newman(g)
