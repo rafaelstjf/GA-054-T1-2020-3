@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import math
 from concurrent.futures import ThreadPoolExecutor
-import networkx.algorithms.community as nxc
+from networkx.algorithms.community import greedy_modularity_communities
 is_oriented=True
 filename = 'musae_git_edges.csv'
 attrib_filename = 'musae_git_target.csv'
@@ -158,7 +158,10 @@ def main():
         '\t15 - Calculate the number of triangles\n',
         '\t16 - Calculate the maximal independent set\n',
         '\t17 - Calculate reciprocity\n'
-        '\t18 - Exit\n'
+        '\t18 - Calculate the vertex with maximum indegree centrality\n'
+        '\t19 - Calculate the vertex with maximum outdegree centrality\n'
+        '\t20 - Find communities using modularity\n'
+        '\t21 - Exit\n'
         )
         op = int(input('Type the option you want: '))
         if(op==1):
@@ -166,13 +169,16 @@ def main():
             print(max(eigen.items(), key=operator.itemgetter(1)))
         elif(op==2):
             centrality = nx.degree_centrality(g)
+            print('Degree centrality')
             print(max(centrality.items(), key=operator.itemgetter(1)))
         elif(op==3):
             betweeness = nx.betweenness_centrality(g, normalized=True)
             print(max(betweeness.items(), key=operator.itemgetter(1)))
         elif(op==4):
             vertex_id = int(input('Vertex id: '))
-            print(vertex_id, ": ", g.in_degree(vertex_id))
+            print(vertex_id, ": ", g.degree(vertex_id))
+            print(vertex_id, " In degree: ", g.in_degree(vertex_id))
+            print(vertex_id, " Out degree: ", g.out_degree(vertex_id))
         elif(op==5):
             if( nx.is_weakly_connected(g) == True):
                 print("It's weakly connected")
@@ -180,7 +186,7 @@ def main():
                 print("It isn't weakly connected")
         elif(op==6):
             vertex_id = int(input('Vertex id: '))
-            print(vertex_id, ": ", g.degree(vertex_id))
+            print(vertex_id, ": ", g.in_degree(vertex_id))
         elif(op==7):
             plot_degree_dist(g)
         elif(op==8):
@@ -209,6 +215,18 @@ def main():
         elif(op==17):
             print("Reciprocity: ", nx.reciprocity(g))
         elif(op==18):
+            print('In degree centrality')
+            centrality = nx.in_degree_centrality(g)
+            print(max(centrality.items(), key=operator.itemgetter(1)))
+        elif(op==19):
+            print('Out degree centrality')
+            centrality = nx.out_degree_centrality(g)
+            print(max(centrality.items(), key=operator.itemgetter(1)))
+        elif(op==20):
+            undir_g = g.to_undirected()
+            c = list(greedy_modularity_communities(undir_g))
+            sorted(c[0])
+        elif(op==21):
             run = False
 
     #calc_plot_strongly_connected_components(g)
