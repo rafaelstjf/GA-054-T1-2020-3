@@ -5,38 +5,28 @@ import networkx as nx
 import math
 from concurrent.futures import ThreadPoolExecutor
 from networkx.algorithms.community import greedy_modularity_communities
+from infomap import Infomap
 is_oriented=True
 filename = 'musae_git_edges.csv'
 attrib_filename = 'musae_git_target.csv'
 num_nodes = 37699
-def generate_degree_matrix(degree):
-    matrix  = np.zeros((len(degree), len(degree)), dtype=np.float32)
-    for i in range(0, len(degree)):
-        matrix[i][i] = degree[i]
-    return matrix
-def generate_undir_graph(g):
-    d_in = generate_degree_matrix(g.in_degree())
-    d_out = generate_degree_matrix(g.out_degree())
-    a = nx.to_numpy_matrix(g, dtype='uint16')
-    alpha = 0.5
-    beta  = 0.5
-    d_in_alpha = d_in**(-alpha)
-    d_in_beta = d_in**(-beta)
-    d_out_alpha = d_out**(-alpha)
-    d_out_beta = d_out**(-beta)
-    a_transpose = a.transpose()
-    #calculating B
-    b = np.matmul(d_out_alpha, a)
-    b = np.matmul(b, d_in_beta)
-    b = np.matmul(b, a_transpose)
-    b = np.matmul(b, d_out_alpha)
-    #calculatin C
-    c = np.matmul(d_in_beta, a_transpose)
-    c = np.matmul(c, d_out_alpha)
-    c = np.matmul(c, a)
-    c = np.matmul(c, d_in_beta)
-    a_undir = b + c
-    print(a_undir)
+def run_infomap(g):
+    im = Infomap("--two-level --directed --tree --ftree")
+    print("Creating graph")
+    for node in g.nodes:
+        im.add_node(node)
+    for edge in g.edges:
+        im.add_link(edge[0], edge[1])
+    print("Running!")
+    im.run()
+    im.write_flow_tree('arvore.txt')
+    print(f"Found {im.num_top_modules} modules with codelength: {im.codelength}")
+    print("Result")
+    print("\n#node module")
+    #for node in im.tree:
+    #    if node.is_leaf:
+    #        print(node.node_id, node.module_id)
+
 def create_graph():
     delimiter = ','
     g = None
@@ -246,7 +236,7 @@ def main():
         '\t17 - Calculate reciprocity\n'
         '\t18 - Calculate the vertex with maximum indegree centrality\n'
         '\t19 - Calculate the vertex with maximum outdegree centrality\n'
-        '\t20 - Find communities using modularity\n'
+        '\t20 - Find communities using infomap\n'
         '\t21 - Exit\n'
         )
         op = int(input('Type the option you want: '))
@@ -310,10 +300,10 @@ def main():
             print(max(centrality.items(), key=operator.itemgetter(1)))
         elif(op==20):
             #undir_g = g.to_undirected()
-            c = list(greedy_modularity_communities(g))
-            sorted(c[0])
+            #c = list(greedy_modularity_communities(undir_g))
+            #sorted(c[0])
+            run_infomap(g)
         elif(op==21):
-            generate_undir_graph(g)
             run = False
 
     calc_plot_strongly_connected_components(g)
