@@ -106,44 +106,7 @@ def plot_degree_dist(g):
     plt.xlabel('Degree')
     plt.scatter(out_degrees, out_values, marker='.', c='#e36387')
     plt.show()
-def plot_degree_dist_binned(g):
-    size_ = len(g.nodes)
-    proportion_in = dict()
-    for i in range(0, size_):
-        if g.in_degree(i) not in proportion_in:
-            ind_in = g.in_degree(i)
-            proportion_in[ind_in] = 0.0
-    biggest_degree = max(proportion_in.keys())
-    num_bins_in = math.ceil(math.log2(biggest_degree) + 1)
-    print(num_bins_in)
-    keys = list(proportion_in.keys())
-    it = keys[1]
-    it_ind = 1
-    values = [proportion_in[0]/size_]
-    degrees  = [0]
-    for i in range(1, num_bins_in+1):
-        bin_size = 0
-        num_nodes = 0
-        av = 0
-        while(it >= (math.pow(2, i-1)) and it <= (math.pow(2, i) - 1) and it < len(proportion_in)):
-            num_nodes+=it
-            bin_size+=1
-            av+=it
-            it_ind+=1
-            it=keys[it_ind]
-        if(bin_size>0):
-            av = av/bin_size
-            values.append(num_nodes/bin_size)
-            degrees.append(av)
-    plt.clf()
-    plt.title("In degree distribution")
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.xlim(1,size_)
-    plt.ylabel('P')
-    plt.xlabel('Degree')
-    plt.scatter(degrees, values, marker='.', c='#e36387')
-    plt.show()
+    
 def plot_bar_char(x, y):
     plt.bar(x, y, width=1, color='#e36387')
     plt.show()
@@ -283,8 +246,7 @@ def main():
             vertex_id = int(input('Vertex id: '))
             print(vertex_id, ": ", g.in_degree(vertex_id))
         elif(op==7):
-            #plot_degree_dist(g)
-            plot_degree_dist_binned(g)
+            plot_degree_dist(g)
         elif(op==8):
             vertex_id = int(input('Vertex id: '))
             plot_subgraph_from_vertex(g,vertex_id)
@@ -319,8 +281,8 @@ def main():
             centrality = nx.out_degree_centrality(g)
             print(max(centrality.items(), key=operator.itemgetter(1)))
         elif(op==20):
-            undir_g = g.to_undirected()
-            c = list(greedy_modularity_communities(undir_g))
+            #undir_g = g.to_undirected()
+            c = list(greedy_modularity_communities(g))
             sorted(c[0])
         elif(op==21):
             run = False
