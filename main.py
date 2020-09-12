@@ -9,6 +9,34 @@ is_oriented=True
 filename = 'musae_git_edges.csv'
 attrib_filename = 'musae_git_target.csv'
 num_nodes = 37699
+def generate_degree_matrix(degree):
+    matrix  = np.zeros((len(degree), len(degree)), dtype=np.float32)
+    for i in range(0, len(degree)):
+        matrix[i][i] = degree[i]
+    return matrix
+def generate_undir_graph(g):
+    d_in = generate_degree_matrix(g.in_degree())
+    d_out = generate_degree_matrix(g.out_degree())
+    a = nx.to_numpy_matrix(g, dtype='uint16')
+    alpha = 0.5
+    beta  = 0.5
+    d_in_alpha = d_in**(-alpha)
+    d_in_beta = d_in**(-beta)
+    d_out_alpha = d_out**(-alpha)
+    d_out_beta = d_out**(-beta)
+    a_transpose = a.transpose()
+    #calculating B
+    b = np.matmul(d_out_alpha, a)
+    b = np.matmul(b, d_in_beta)
+    b = np.matmul(b, a_transpose)
+    b = np.matmul(b, d_out_alpha)
+    #calculatin C
+    c = np.matmul(d_in_beta, a_transpose)
+    c = np.matmul(c, d_out_alpha)
+    c = np.matmul(c, a)
+    c = np.matmul(c, d_in_beta)
+    a_undir = b + c
+    print(a_undir)
 def create_graph():
     delimiter = ','
     g = None
@@ -285,6 +313,7 @@ def main():
             c = list(greedy_modularity_communities(g))
             sorted(c[0])
         elif(op==21):
+            generate_undir_graph(g)
             run = False
 
     calc_plot_strongly_connected_components(g)
